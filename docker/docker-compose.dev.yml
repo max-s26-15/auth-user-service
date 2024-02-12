@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:14
+    container_name: database
+    ports:
+      - ${PGPORT}:${PGPORT}
+    env_file:
+      - ../.env
+    environment:
+      POSTGRES_HOST: ${PGHOST}
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+    volumes:
+      - auth-database:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  auth-database:
