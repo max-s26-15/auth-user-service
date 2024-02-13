@@ -17,5 +17,16 @@ services:
       - auth-database:/var/lib/postgresql/data
     restart: always
 
+  redis:
+    image: "redis:7.2.4-alpine"
+    container_name: redis
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    env_file:
+        - ../.env
+    volumes:
+      - redis-data:/data
+
 volumes:
   auth-database:
+  redis-data:

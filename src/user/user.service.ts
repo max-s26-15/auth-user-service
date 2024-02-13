@@ -10,18 +10,26 @@ import { RegisterDto, UserVm } from '../common/dto';
 import * as bcrypt from 'bcrypt';
 import { IApiResponse, IUser } from '../common/types';
 import { plainToInstance } from 'class-transformer';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private redisService: RedisService,
   ) {}
+
+  async getProfileFromCache(username: string): Promise<UserVm> {
+    return await this.redisService.get<UserVm>(username);
+  }
 
   async getProfile({ id, username }: IUser): Promise<UserVm> {
     const user = await this.userRepository.findOneBy({ id, username });
 
     if (!user) throw new NotFoundException('USER_NOT_FOUND');
+
+    await this.redisService.set(username, user, 60);
 
     return plainToInstance(UserVm, user, { excludeExtraneousValues: true });
   }

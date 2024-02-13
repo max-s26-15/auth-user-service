@@ -12,6 +12,12 @@ export class UserController {
 
   @Get('profile')
   async getProfile(@CurrentUser() user: IUser): Promise<UserVm> {
+    const cachedProfile = await this.userService.getProfileFromCache(
+      user.username,
+    );
+
+    if (cachedProfile) return cachedProfile;
+
     return this.userService.getProfile(user);
   }
 
