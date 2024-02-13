@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { UserService } from './user.service';
-import { RegisterDto } from '../dto';
-import { IApiResponse } from '../types';
+import { RegisterDto } from '../common/dto';
+import { IApiResponse } from '../common/types';
 
 @Controller('user')
 export class UserController {

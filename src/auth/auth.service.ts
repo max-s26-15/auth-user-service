@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { LoginDto } from '../dto/login.dto';
-import { IJwtTokens, IUserPayload } from '../types';
+import { LoginDto } from '../common/dto/login.dto';
+import { IJwtTokens, IUserPayload } from '../common/types';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 

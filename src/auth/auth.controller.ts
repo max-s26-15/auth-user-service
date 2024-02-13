@@ -9,12 +9,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto } from '../dto/login.dto';
-import { IApiResponse, IJwtTokens, IUserPayload } from '../types';
+import { LoginDto } from '../common/dto/login.dto';
+import { IJwtTokens } from '../common/types';
 import { Response, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { RefreshTokenGuard } from '../guards/refresh-token.guard';
-import { CurrentUser } from '../decorators';
+import { RefreshTokenGuard } from '../common/guards/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {
