@@ -1,10 +1,15 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../common/entities';
+import { User } from '../database/entities';
 import { Repository } from 'typeorm';
-import { RegisterDto } from '../common/dto';
+import { RegisterDto, UserVm } from '../common/dto';
 import * as bcrypt from 'bcrypt';
-import { IApiResponse } from '../common/types';
+import { IApiResponse, IUser } from '../common/types';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UserService {
@@ -12,6 +17,14 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
+
+  async getProfile({ id, username }: IUser): Promise<UserVm> {
+    const user = await this.userRepository.findOneBy({ id, username });
+
+    if (!user) throw new NotFoundException('USER_NOT_FOUND');
+
+    return plainToInstance(UserVm, user, { excludeExtraneousValues: true });
+  }
 
   async registerUser(registerDto: RegisterDto): Promise<IApiResponse> {
     const { username, password, name, surname } = registerDto;
