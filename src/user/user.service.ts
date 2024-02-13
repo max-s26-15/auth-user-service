@@ -2,9 +2,8 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../database/entities';
 import { Repository } from 'typeorm';
-import { RegisterDto, UserVm } from '../dto';
+import { RegisterDto } from '../dto';
 import * as bcrypt from 'bcrypt';
-import { plainToInstance } from 'class-transformer';
 import { IApiResponse } from '../types';
 
 @Injectable()
@@ -19,9 +18,7 @@ export class UserService {
 
     const isUsernameTaken = await this.isUsernameTaken(username);
 
-    if (isUsernameTaken) {
-      throw new ConflictException('USERNAME_ALREADY_TAKEN');
-    }
+    if (isUsernameTaken) throw new ConflictException('USERNAME_ALREADY_TAKEN');
 
     const hashedPassword = await this.hashUserPassword(password);
 
@@ -43,6 +40,25 @@ export class UserService {
   }
 
   private async hashUserPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, 10);
+    return await bcrypt.hash(password, 10);
+  }
+
+  async isUserExists(id: number, username: string): Promise<boolean> {
+    const user = await this.userRepository.findOneBy({ id, username });
+    return !!user;
+  }
+
+  async compareUserPasswords(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return await bcrypt.compare(password, hashedPassword);
+  }
+
+  async getUserByUsername(username: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: { username },
+      select: ['id', 'username', 'password'],
+    });
   }
 }
