@@ -23,4 +23,16 @@ export class RedisService {
 
     return JSON.parse(data) as T;
   }
+
+  async exists(key: string): Promise<boolean> {
+    return !!(await this.redisClient.exists(key));
+  }
+
+  async del(key: string) {
+    await this.redisClient.del(key);
+  }
+
+  async flushAll() {
+    await this.redisClient.flushall();
+  }
 }

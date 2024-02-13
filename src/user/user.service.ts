@@ -6,32 +6,24 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../database/entities';
 import { Repository } from 'typeorm';
-import { RegisterDto, UserVm } from '../common/dto';
+import { RegisterDto } from '../common/dto';
 import * as bcrypt from 'bcrypt';
 import { IApiResponse, IUser } from '../common/types';
-import { plainToInstance } from 'class-transformer';
-import { RedisService } from '../redis/redis.service';
+import { IUserService } from './user-service.interface';
 
 @Injectable()
-export class UserService {
+export class UserService implements IUserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private redisService: RedisService,
   ) {}
 
-  async getProfileFromCache(username: string): Promise<UserVm> {
-    return await this.redisService.get<UserVm>(username);
-  }
-
-  async getProfile({ id, username }: IUser): Promise<UserVm> {
+  async getProfile({ id, username }: IUser): Promise<User> {
     const user = await this.userRepository.findOneBy({ id, username });
 
     if (!user) throw new NotFoundException('USER_NOT_FOUND');
 
-    await this.redisService.set(username, user, 60);
-
-    return plainToInstance(UserVm, user, { excludeExtraneousValues: true });
+    return user;
   }
 
   async registerUser(registerDto: RegisterDto): Promise<IApiResponse> {
@@ -67,13 +59,6 @@ export class UserService {
   async isUserExists(id: number, username: string): Promise<boolean> {
     const user = await this.userRepository.findOneBy({ id, username });
     return !!user;
-  }
-
-  async compareUserPasswords(
-    password: string,
-    hashedPassword: string,
-  ): Promise<boolean> {
-    return await bcrypt.compare(password, hashedPassword);
   }
 
   async getUserByUsername(username: string): Promise<User | null> {

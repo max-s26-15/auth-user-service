@@ -1,24 +1,24 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { UserService } from './user.service';
+import { Body, Controller, Get, Inject, Post, UseGuards } from '@nestjs/common';
 import { RegisterDto, UserVm } from '../common/dto';
 import { IApiResponse, IUser } from '../common/types';
 import { CurrentUser, Public } from '../common/decorators';
 import { AccessTokenGuard } from '../common/guards/access-token.guard';
+import { IUserService, USER_SERVICE } from './user-service.interface';
+import { plainToInstance } from 'class-transformer';
 
 @UseGuards(AccessTokenGuard)
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    @Inject(USER_SERVICE)
+    private userService: IUserService,
+  ) {}
 
   @Get('profile')
-  async getProfile(@CurrentUser() user: IUser): Promise<UserVm> {
-    const cachedProfile = await this.userService.getProfileFromCache(
-      user.username,
-    );
+  async getProfile(@CurrentUser() currentUser: IUser): Promise<UserVm> {
+    const user = await this.userService.getProfile(currentUser);
 
-    if (cachedProfile) return cachedProfile;
-
-    return this.userService.getProfile(user);
+    return plainToInstance(UserVm, user, { excludeExtraneousValues: true });
   }
 
   @Public()

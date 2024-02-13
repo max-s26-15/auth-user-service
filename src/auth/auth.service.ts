@@ -8,6 +8,7 @@ import { LoginDto } from '../common/dto/login.dto';
 import { IJwtTokens, IUserPayload } from '../common/types';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -31,10 +32,7 @@ export class AuthService {
 
     if (!user) throw new NotFoundException('USER_NOT_FOUND');
 
-    const isPasswordValid = await this.userService.compareUserPasswords(
-      password,
-      user.password,
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) throw new BadRequestException('INVALID_PASSWORD');
 
