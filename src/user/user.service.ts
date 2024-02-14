@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../database/entities';
 import { Repository } from 'typeorm';
@@ -19,11 +15,7 @@ export class UserService implements IUserService {
   ) {}
 
   async getProfile({ id, username }: IUser): Promise<User> {
-    const user = await this.userRepository.findOneBy({ id, username });
-
-    if (!user) throw new NotFoundException('USER_NOT_FOUND');
-
-    return user;
+    return await this.userRepository.findOneBy({ id, username });
   }
 
   async registerUser(registerDto: RegisterDto): Promise<IApiResponse> {

@@ -9,7 +9,8 @@ export class RedisService {
   ) {}
 
   async set(key: string, value: unknown, expirationSeconds: number) {
-    if (!value) throw new Error('Value is required');
+    if (value === null || value === undefined)
+      throw new Error('Value is required');
 
     const data = JSON.stringify(value);
 

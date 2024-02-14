@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
@@ -43,9 +44,13 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    const payload = this.jwtService.verify(refreshToken, {
+    const payload = (await this.jwtService.verifyAsync(refreshToken, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-    }) as IUserPayload;
+    })) as IUserPayload;
+
+    if (!payload.id || !payload.username) {
+      throw new InternalServerErrorException('INVALID_PAYLOAD');
+    }
 
     const user = await this.userService.getUserByUsername(payload.username);
 
@@ -59,15 +64,15 @@ export class AuthService {
 
   async generateTokens(payload: IUserPayload): Promise<IJwtTokens> {
     if (!payload.id || !payload.username) {
-      throw new BadRequestException('INVALID_PAYLOAD');
+      throw new InternalServerErrorException('INVALID_PAYLOAD');
     }
 
-    const accessToken = this.jwtService.sign(payload, {
+    const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: this.accessTokenAge,
       secret: this.configService.get<string>('JWT_SECRET'),
     });
 
-    const refreshToken = this.jwtService.sign(payload, {
+    const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: this.refreshTokenAge,
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
     });

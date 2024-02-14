@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { RegisterDto } from 'src/common/dto';
 import { IApiResponse, IUser } from 'src/common/types';
 import { IUserService } from '../user-service.interface';
@@ -19,6 +19,8 @@ export class ProxyUserService implements IUserService {
     if (cachedUser) return cachedUser;
 
     const user = await this.userService.getProfile({ id, username });
+
+    if (!user) throw new NotFoundException('USER_NOT_FOUND');
 
     await this.redisService.set(username, user, 60);
 
