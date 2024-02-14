@@ -21,7 +21,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "dev:services:build": "docker-compose -p articles -f docker/docker-compose.dev.yml --env-file .env build",
     "dev:services": "docker compose -p articles -f docker/docker-compose.dev.yml --env-file .env up",
-    "dev:services:clean": "docker compose -p articles -f docker/docker-compose.dev.yml --env-file .env down"
+    "dev:services:clean": "docker compose -p articles -f docker/docker-compose.dev.yml --env-file .env down",
+    "services:build": "docker-compose -p articles -f docker/docker-compose.yml --env-file .env build",
+    "services": "docker compose -p articles -f docker/docker-compose.yml --env-file .env up",
+    "services:clean": "docker compose -p articles -f docker/docker-compose.yml --env-file .env down"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
